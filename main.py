@@ -26,7 +26,7 @@ else:
             if not ret:
                 print("End of video or unable to fetch frame.")
                 break
-            
+
             gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
             # Detect faces
@@ -37,6 +37,9 @@ else:
                 minSize=(30, 30),
                 flags=cv2.CASCADE_SCALE_IMAGE
             )
+
+            total_faces = len(faces)
+            faces_with_features = 0
 
             for (x, y, width, height) in faces:
                 cv2.rectangle(frame, (x, y), (x + width, y + height), (255, 255, 0), 2)
@@ -54,9 +57,6 @@ else:
                     flags=cv2.CASCADE_SCALE_IMAGE
                 )
 
-                for (ex, ey, ew, eh) in eyes:
-                    cv2.rectangle(roi_color, (ex, ey), (ex + ew, ey + eh), (0, 255, 0), 2)
-
                 # Detect smiles in the ROI
                 smiles = smile_cascade.detectMultiScale(
                     roi_gray,
@@ -66,8 +66,23 @@ else:
                     flags=cv2.CASCADE_SCALE_IMAGE
                 )
 
+                # Check if at least one eye or smile is detected for this face
+                if len(eyes) > 0 or len(smiles) > 0:
+                    faces_with_features += 1
+
+                for (ex, ey, ew, eh) in eyes:
+                    cv2.rectangle(roi_color, (ex, ey), (ex + ew, ey + eh), (0, 255, 0), 2)
+
                 for (sx, sy, sw, sh) in smiles:
                     cv2.rectangle(roi_color, (sx, sy), (sx + sw, sy + sh), (0, 0, 255), 2)
+
+            # Calculate detection accuracy
+            if total_faces > 0:
+                accuracy = (faces_with_features / total_faces) * 100
+            else:
+                accuracy = 0
+
+            print(f"Detection Accuracy: {accuracy:.2f}%")
 
             # Resize the frame
             resized_frame = cv2.resize(frame, (640, 480))  # Resize to 640x480
@@ -95,6 +110,9 @@ else:
                 flags=cv2.CASCADE_SCALE_IMAGE
             )
 
+            total_faces = len(faces)
+            faces_with_features = 0
+
             for (x, y, width, height) in faces:
                 cv2.rectangle(image, (x, y), (x + width, y + height), (255, 255, 0), 2)
 
@@ -111,9 +129,6 @@ else:
                     flags=cv2.CASCADE_SCALE_IMAGE
                 )
 
-                for (ex, ey, ew, eh) in eyes:
-                    cv2.rectangle(roi_color, (ex, ey), (ex + ew, ey + eh), (0, 255, 0), 2)
-
                 # Detect smiles in the ROI
                 smiles = smile_cascade.detectMultiScale(
                     roi_gray,
@@ -123,8 +138,23 @@ else:
                     flags=cv2.CASCADE_SCALE_IMAGE
                 )
 
+                # Check if at least one eye or smile is detected for this face
+                if len(eyes) > 0 or len(smiles) > 0:
+                    faces_with_features += 1
+
+                for (ex, ey, ew, eh) in eyes:
+                    cv2.rectangle(roi_color, (ex, ey), (ex + ew, ey + eh), (0, 255, 0), 2)
+
                 for (sx, sy, sw, sh) in smiles:
                     cv2.rectangle(roi_color, (sx, sy), (sx + sw, sy + sh), (0, 0, 255), 2)
+
+            # Calculate detection accuracy
+            if total_faces > 0:
+                accuracy = (faces_with_features / total_faces) * 100
+            else:
+                accuracy = 0
+
+            print(f"Detection Accuracy: {accuracy:.2f}%")
 
             # Resize the image
             resized_image = cv2.resize(image, (640, 480))  # Resize to 640x480
